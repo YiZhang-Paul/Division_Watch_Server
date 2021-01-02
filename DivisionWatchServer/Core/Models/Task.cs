@@ -13,6 +13,7 @@ namespace Core.Models
         public int Estimate { get; set; }
         public DateTime Deadline { get; set; }
         public List<int> Recur { get; set; } = new List<int>();
+        public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
         public List<Task> Subtask { get; set; } = new List<Task>();
         public bool IsInterruption { get; set; }
 
