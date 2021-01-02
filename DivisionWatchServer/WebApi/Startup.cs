@@ -1,8 +1,10 @@
+using Core.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Service.Repositories;
 
 namespace WebApi
 {
@@ -19,6 +21,8 @@ namespace WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddScoped<TaskItemRepository, TaskItemRepository>();
+            services.Configure<DatabaseConfiguration>(Configuration.GetSection(DatabaseConfiguration.Key));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

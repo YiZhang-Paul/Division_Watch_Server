@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Core.Models
 {
-    public class Task
+    public class TaskItem : DatabaseRecord
     {
         public string Name { get; set; }
         public Category Category { get; set; }
@@ -14,18 +14,18 @@ namespace Core.Models
         public DateTime Deadline { get; set; }
         public List<int> Recur { get; set; } = new List<int>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
-        public List<Task> Subtask { get; set; } = new List<Task>();
+        public List<TaskItem> Subtasks { get; set; } = new List<TaskItem>();
         public bool IsInterruption { get; set; }
 
         public bool IsCompleted
         {
-            get => Subtask.Any() ? Subtask.All(_ => _.IsCompleted) : _isCompleted;
+            get => Subtasks.Any() ? Subtasks.All(_ => _.IsCompleted) : _isCompleted;
             set => _isCompleted = value;
         }
 
         private bool _isCompleted = false;
 
-        public Task(string name)
+        public TaskItem(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
