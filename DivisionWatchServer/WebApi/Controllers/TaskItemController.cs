@@ -12,6 +12,11 @@ namespace WebApi.Controllers
     {
         private TaskItemService TaskItemService { get; set; }
 
+        public TaskItemController(TaskItemService taskItemService)
+        {
+            TaskItemService = taskItemService;
+        }
+
         [HttpGet]
         [Route("all")]
         public async Task<IEnumerable<TaskItem>> GetTaskItems([FromQuery]int limit = 0)
