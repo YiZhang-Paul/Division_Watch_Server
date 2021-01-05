@@ -33,9 +33,14 @@ namespace WebApi.Controllers
 
         [HttpPost]
         [Route("")]
-        public async Task<string> AddTaskItem([FromBody]TaskItem item)
+        public async Task<IActionResult> AddTaskItem([FromBody]TaskItem item)
         {
-            return await TaskItemService.AddTaskItem(item).ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(item.Name))
+            {
+                return BadRequest("Must provide a valid name.");
+            }
+
+            return Ok(await TaskItemService.AddTaskItem(item).ConfigureAwait(false));
         }
 
         [HttpPut]

@@ -24,15 +24,5 @@ namespace Core.Models
         }
 
         private bool _isCompleted = false;
-
-        public TaskItem(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Must provide a valid name.");
-            }
-
-            Name = name;
-        }
     }
 }
