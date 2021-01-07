@@ -2,6 +2,7 @@ using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace WebApi.Controllers
@@ -21,7 +22,9 @@ namespace WebApi.Controllers
         [Route("all")]
         public async Task<IEnumerable<TaskItem>> GetTaskItems([FromQuery]int limit = 0)
         {
-            return await TaskItemService.GetTaskItems(limit).ConfigureAwait(false);
+            var items = await TaskItemService.GetTaskItems(limit).ConfigureAwait(false);
+
+            return items.OrderByDescending(_ => _.Priority);
         }
 
         [HttpGet]
