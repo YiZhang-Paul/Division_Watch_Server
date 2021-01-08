@@ -12,7 +12,7 @@ namespace Core.Models
         public Priority Priority { get; set; } = Priority.Low;
         public int Estimate { get; set; }
         public DateTime Deadline { get; set; }
-        public List<int> Recur { get; set; } = new List<int>();
+        public List<bool> Recur { get; set; } = new List<bool>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
         public List<TaskItem> Subtasks { get; set; } = new List<TaskItem>();
         public bool IsInterruption { get; set; }
