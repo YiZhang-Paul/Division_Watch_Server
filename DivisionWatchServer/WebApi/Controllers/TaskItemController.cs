@@ -59,5 +59,12 @@ namespace WebApi.Controllers
         {
             return await TaskItemService.DeleteTaskItem(id).ConfigureAwait(false);
         }
+
+        [HttpPost]
+        [Route("options")]
+        public async Task<TaskOptions> GetTaskOptions([FromBody]TaskOptionsQuery query)
+        {
+            return await TaskItemService.GetTaskOptions(query).ConfigureAwait(false);
+        }
     }
 }

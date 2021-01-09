@@ -1,16 +1,21 @@
+using Core.Enums;
 using Core.Models;
 using Service.Repositories;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Service.Services
 {
     public class TaskItemService
     {
+        private CategoryRepository CategoryRepository { get; set; }
         private TaskItemRepository TaskItemRepository { get; set; }
 
-        public TaskItemService(TaskItemRepository taskItemRepository)
+        public TaskItemService(CategoryRepository categoryRepository, TaskItemRepository taskItemRepository)
         {
+            CategoryRepository = categoryRepository;
             TaskItemRepository = taskItemRepository;
         }
 
@@ -78,6 +83,22 @@ namespace Service.Services
             {
                 return false;
             }
+        }
+
+        public async Task<TaskOptions> GetTaskOptions(TaskOptionsQuery query)
+        {
+            var startDate = DateTime.Parse(query.CurrentDate);
+            var deadLines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
+            var categories = await CategoryRepository.Get().ConfigureAwait(false);
+            var estimates = Enumerable.Range(1, 8).Select(_ => query.EstimationBase * _);
+
+            return new TaskOptions
+            {
+                Categories = categories.ToList(),
+                Priorities = Enum.GetNames(typeof(Priority)).Select(_ => new RankItem { Rank = (int)Enum.Parse(typeof(Priority), _), Name = _ }).ToList(),
+                DeadLines = deadLines.ToList(),
+                Estimates = estimates.ToList()
+            };
         }
     }
 }
