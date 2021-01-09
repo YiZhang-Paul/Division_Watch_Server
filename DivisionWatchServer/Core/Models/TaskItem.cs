@@ -1,5 +1,4 @@
 using Core.Enums;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +10,7 @@ namespace Core.Models
         public Category Category { get; set; }
         public Priority Priority { get; set; } = Priority.Low;
         public int Estimate { get; set; }
-        public DateTime Deadline { get; set; }
+        public string Deadline { get; set; }
         public List<bool> Recur { get; set; } = new List<bool>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
         public List<TaskItem> Subtasks { get; set; } = new List<TaskItem>();
