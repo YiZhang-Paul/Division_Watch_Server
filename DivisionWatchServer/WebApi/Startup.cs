@@ -28,6 +28,7 @@ namespace WebApi
 
             services.AddControllers();
             services.AddSingleton<TaskItemService, TaskItemService>();
+            services.AddScoped<CategoryRepository, CategoryRepository>();
             services.AddScoped<TaskItemRepository, TaskItemRepository>();
             services.Configure<DatabaseConfiguration>(Configuration.GetSection(DatabaseConfiguration.Key));
         }
