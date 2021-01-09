@@ -24,7 +24,7 @@ namespace WebApi.Controllers
         {
             var items = await TaskItemService.GetTaskItems(limit).ConfigureAwait(false);
 
-            return items.OrderByDescending(_ => _.Priority);
+            return items.OrderByDescending(_ => _.Priority.Rank);
         }
 
         [HttpGet]

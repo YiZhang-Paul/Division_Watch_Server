@@ -1,4 +1,4 @@
-using Core.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +8,7 @@ namespace Core.Models
     {
         public string Name { get; set; }
         public Category Category { get; set; }
-        public Priority Priority { get; set; } = Priority.Low;
+        public RankItem Priority { get; set; }
         public int Estimate { get; set; }
         public string Deadline { get; set; }
         public List<bool> Recur { get; set; } = new List<bool>();
@@ -23,5 +23,14 @@ namespace Core.Models
         }
 
         private bool _isCompleted = false;
+
+        public TaskItem()
+        {
+            Priority = new RankItem
+            {
+                Rank = (int)Enums.Priority.Low,
+                Name = Enum.GetName(typeof(Enums.Priority), Enums.Priority.Low)
+            };
+        }
     }
 }
