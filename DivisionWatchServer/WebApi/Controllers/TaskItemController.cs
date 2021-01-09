@@ -19,10 +19,10 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("")]
-        public async Task<IEnumerable<TaskItem>> GetTaskItems([FromQuery]int limit = 0)
+        [Route("parents")]
+        public async Task<IEnumerable<TaskItem>> GetParentTaskItems([FromQuery]int limit = 0)
         {
-            var items = await TaskItemService.GetTaskItems(limit).ConfigureAwait(false);
+            var items = await TaskItemService.GetParentTaskItems(limit).ConfigureAwait(false);
 
             return items.OrderByDescending(_ => _.Priority.Rank);
         }
