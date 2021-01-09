@@ -19,7 +19,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("all")]
+        [Route("")]
         public async Task<IEnumerable<TaskItem>> GetTaskItems([FromQuery]int limit = 0)
         {
             var items = await TaskItemService.GetTaskItems(limit).ConfigureAwait(false);
