@@ -6,7 +6,7 @@ namespace Core.Models
     {
         public List<Category> Categories { get; set; } = new List<Category>();
         public List<RankItem> Priorities { get; set; } = new List<RankItem>();
-        public List<string> DeadLines { get; set; } = new List<string>();
+        public List<string> Deadlines { get; set; } = new List<string>();
         public List<int> Estimates { get; set; } = new List<int>();
     }
 }

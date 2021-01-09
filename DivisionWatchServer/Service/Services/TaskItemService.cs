@@ -88,7 +88,7 @@ namespace Service.Services
         public async Task<TaskOptions> GetTaskOptions(TaskOptionsQuery query)
         {
             var startDate = DateTime.Parse(query.CurrentDate);
-            var deadLines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
+            var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
             var categories = await CategoryRepository.Get().ConfigureAwait(false);
             var estimates = Enumerable.Range(1, 8).Select(_ => query.EstimationBase * _);
 
@@ -96,7 +96,7 @@ namespace Service.Services
             {
                 Categories = categories.ToList(),
                 Priorities = ToRankItem(typeof(Priority)).ToList(),
-                DeadLines = deadLines.ToList(),
+                Deadlines = deadlines.ToList(),
                 Estimates = estimates.ToList()
             };
         }
