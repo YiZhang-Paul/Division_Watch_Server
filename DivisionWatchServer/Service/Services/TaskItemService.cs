@@ -95,10 +95,19 @@ namespace Service.Services
             return new TaskOptions
             {
                 Categories = categories.ToList(),
-                Priorities = Enum.GetNames(typeof(Priority)).Select(_ => new RankItem { Rank = (int)Enum.Parse(typeof(Priority), _), Name = _ }).ToList(),
+                Priorities = ToRankItem(typeof(Priority)).ToList(),
                 DeadLines = deadLines.ToList(),
                 Estimates = estimates.ToList()
             };
+        }
+
+        private IEnumerable<RankItem> ToRankItem(Type type)
+        {
+            return Enum.GetNames(type).Select(_ => new RankItem
+            {
+                Rank = (int)Enum.Parse(type, _),
+                Name = _
+            });
         }
     }
 }
