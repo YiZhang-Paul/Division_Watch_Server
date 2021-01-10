@@ -19,23 +19,11 @@ namespace Service.Services
             TaskItemRepository = taskItemRepository;
         }
 
-        public async Task<IEnumerable<TaskItem>> GetParentTaskItems(int limit)
+        public async Task<IEnumerable<TaskItem>> GetIncompleteTaskItems(int limit)
         {
             try
             {
-                return await TaskItemRepository.GetParentTaskItems(limit).ConfigureAwait(false);
-            }
-            catch
-            {
-                return new List<TaskItem>();
-            }
-        }
-
-        public async Task<IEnumerable<TaskItem>> GetChildTaskItems(string id)
-        {
-            try
-            {
-                return await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false);
+                return await TaskItemRepository.GetIncompleteTaskItems(limit).ConfigureAwait(false);
             }
             catch
             {

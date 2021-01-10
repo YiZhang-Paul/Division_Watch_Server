@@ -19,10 +19,10 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("parents")]
-        public async Task<IEnumerable<TaskItem>> GetParentTaskItems([FromQuery]int limit = 0)
+        [Route("incomplete")]
+        public async Task<IEnumerable<TaskItem>> GetIncompleteTaskItems([FromQuery]int limit = 0)
         {
-            var items = await TaskItemService.GetParentTaskItems(limit).ConfigureAwait(false);
+            var items = await TaskItemService.GetIncompleteTaskItems(limit).ConfigureAwait(false);
 
             return items.OrderByDescending(_ => _.Priority.Rank);
         }
@@ -32,13 +32,6 @@ namespace WebApi.Controllers
         public async Task<TaskItem> GetTaskItem(string id)
         {
             return await TaskItemService.GetTaskItem(id).ConfigureAwait(false);
-        }
-
-        [HttpGet]
-        [Route("{id}/children")]
-        public async Task<IEnumerable<TaskItem>> GetChildTaskItems(string id)
-        {
-            return await TaskItemService.GetChildTaskItems(id).ConfigureAwait(false);
         }
 
         [HttpPost]
