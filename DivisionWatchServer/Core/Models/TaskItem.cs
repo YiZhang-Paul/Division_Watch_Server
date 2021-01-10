@@ -21,8 +21,8 @@ namespace Core.Models
         {
             Priority = new RankItem
             {
-                Rank = (int)Enums.Priority.Low,
-                Name = Enum.GetName(typeof(Enums.Priority), Enums.Priority.Low)
+                Rank = (int)Enums.Priority.Normal,
+                Name = Enum.GetName(typeof(Enums.Priority), Enums.Priority.Normal)
             };
         }
     }
