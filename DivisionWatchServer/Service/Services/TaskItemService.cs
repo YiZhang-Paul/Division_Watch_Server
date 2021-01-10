@@ -31,6 +31,18 @@ namespace Service.Services
             }
         }
 
+        public async Task<IEnumerable<TaskItem>> GetChildTaskItems(string id)
+        {
+            try
+            {
+                return await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false);
+            }
+            catch
+            {
+                return new List<TaskItem>();
+            }
+        }
+
         public async Task<TaskItem> GetTaskItem(string id)
         {
             try
