@@ -1,6 +1,7 @@
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,15 +36,17 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("")]
-        public async Task<IActionResult> AddTaskItem([FromBody]TaskItem item)
+        [Route("{id}/children")]
+        public async Task<IActionResult> AddChildTaskItem([FromBody]TaskItem item, string id)
         {
-            if (string.IsNullOrWhiteSpace(item.Name))
+            try
             {
-                return BadRequest("Must provide a valid name.");
+                return Ok(await TaskItemService.AddChildTaskItem(id, item).ConfigureAwait(false));
             }
-
-            return Ok(await TaskItemService.AddTaskItem(item).ConfigureAwait(false));
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
         }
 
         [HttpPut]

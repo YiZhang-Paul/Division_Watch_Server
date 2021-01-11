@@ -43,17 +43,39 @@ namespace Service.Services
             }
         }
 
-        public async Task<string> AddTaskItem(TaskItem item)
+        public async Task<TaskItem> AddChildTaskItem(string parentId, TaskItem item)
         {
+            if (string.IsNullOrWhiteSpace(item.Name))
+            {
+                throw new ArgumentException("Must provide a valid name.");
+            }
+
+            var parent = await TaskItemRepository.Get(parentId).ConfigureAwait(false);
+
+            if (parent == null)
+            {
+                throw new ArgumentException("Parent task not found.");
+            }
+
             try
             {
+                item.Parent = parent.Id;
+                item.Category ??= parent.Category;
+                item.Deadline ??= parent.Deadline;
+
+                item.Priority ??= new RankItem
+                {
+                    Rank = (int)Priority.Normal,
+                    Name = Enum.GetName(typeof(Priority), Priority.Normal)
+                };
+
                 await TaskItemRepository.Add(item).ConfigureAwait(false);
 
-                return item.Id;
+                return item;
             }
             catch
             {
-                return string.Empty;
+                return null;
             }
         }
 
