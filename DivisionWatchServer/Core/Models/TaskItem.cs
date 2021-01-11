@@ -12,7 +12,6 @@ namespace Core.Models
         public string Deadline { get; set; }
         public List<bool> Recur { get; set; } = new List<bool>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
-        public List<string> Subtasks { get; set; } = new List<string>();
         public string Parent { get; set; } = null;
         public bool IsInterruption { get; set; }
         public bool IsCompleted { get; set; }
