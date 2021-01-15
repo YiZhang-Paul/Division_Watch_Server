@@ -119,7 +119,7 @@ namespace Service.Services
                 Categories = categories.ToList(),
                 Priorities = ToRankItem(typeof(Priority)).ToList(),
                 Deadlines = deadlines.ToList(),
-                Estimates = estimates.ToList()
+                Estimates = new List<int> { 600000 }.Concat(estimates).ToList()
             };
         }
 
