@@ -11,6 +11,7 @@ namespace Service.Services
 {
     public class TaskItemService
     {
+        private const int SkullDuration = 1500000;
         private CategoryRepository CategoryRepository { get; set; }
         private TaskItemRepository TaskItemRepository { get; set; }
 
@@ -64,6 +65,7 @@ namespace Service.Services
                 item.Parent = parent.Id;
                 item.Category ??= parent.Category;
                 item.Deadline ??= parent.Deadline;
+                item.Estimate = SkullDuration;
                 item.Recur = parent.Recur;
 
                 item.Priority ??= new RankItem
@@ -114,12 +116,11 @@ namespace Service.Services
 
         public async Task<TaskOptions> GetTaskOptions(string currentDate)
         {
-            var skullDuration = 1500000;
             var startDate = DateTime.Parse(currentDate);
             var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
             var categories = await CategoryRepository.Get().ConfigureAwait(false);
-            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / skullDuration);
-            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => skullDuration * _);
+            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / SkullDuration);
+            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => SkullDuration * _);
 
             return new TaskOptions
             {
@@ -127,7 +128,7 @@ namespace Service.Services
                 Priorities = ToRankItem(typeof(Priority)).ToList(),
                 Deadlines = new List<string> { string.Empty }.Concat(deadlines).ToList(),
                 Estimates = new List<int> { 600000 }.Concat(estimates).ToList(),
-                SkullDuration = skullDuration
+                SkullDuration = SkullDuration
             };
         }
 
