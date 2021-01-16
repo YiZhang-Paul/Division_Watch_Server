@@ -113,7 +113,8 @@ namespace Service.Services
             var startDate = DateTime.Parse(query.CurrentDate);
             var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
             var categories = await CategoryRepository.Get().ConfigureAwait(false);
-            var estimates = Enumerable.Range(1, 8).Select(_ => query.EstimationBase * _);
+            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / query.EstimationBase);
+            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => query.EstimationBase * _);
 
             return new TaskOptions
             {
