@@ -9,7 +9,7 @@ namespace Core.Models
         public Category Category { get; set; }
         public RankItem Priority { get; set; }
         public int Estimate { get; set; }
-        public string Deadline { get; set; }
+        public string Deadline { get; set; } = string.Empty;
         public List<bool> Recur { get; set; } = new List<bool>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
         public string Parent { get; set; } = null;
