@@ -35,6 +35,13 @@ namespace WebApi.Controllers
             return await TaskItemService.GetTaskItem(id).ConfigureAwait(false);
         }
 
+        [HttpGet]
+        [Route("empty")]
+        public async Task<TaskItem> GetEmptyTaskItem()
+        {
+            return await TaskItemService.GetEmptyTaskItem().ConfigureAwait(false);
+        }
+
         [HttpPost]
         [Route("{id}/children")]
         public async Task<IActionResult> AddChildTaskItem([FromBody]TaskItem item, string id)

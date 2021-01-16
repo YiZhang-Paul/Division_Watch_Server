@@ -45,6 +45,17 @@ namespace Service.Services
             }
         }
 
+        public async Task<TaskItem> GetEmptyTaskItem()
+        {
+            var categories = await CategoryRepository.Get(1).ConfigureAwait(false);
+
+            return new TaskItem
+            {
+                Category = categories.FirstOrDefault(),
+                Estimate = SkullDuration
+            };
+        }
+
         public async Task<AddChildResult> AddChildTaskItem(string parentId, TaskItem item)
         {
             if (string.IsNullOrWhiteSpace(item.Name))
