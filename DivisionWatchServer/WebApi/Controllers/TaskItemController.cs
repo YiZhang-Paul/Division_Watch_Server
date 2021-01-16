@@ -43,6 +43,20 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("")]
+        public async Task<IActionResult> AddTaskItem([FromBody]TaskItem item)
+        {
+            try
+            {
+                return Ok(await TaskItemService.AddTaskItem(item).ConfigureAwait(false));
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("{id}/children")]
         public async Task<IActionResult> AddChildTaskItem([FromBody]TaskItem item, string id)
         {

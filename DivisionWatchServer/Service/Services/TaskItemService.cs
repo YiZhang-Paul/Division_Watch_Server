@@ -56,6 +56,25 @@ namespace Service.Services
             };
         }
 
+        public async Task<TaskItem> AddTaskItem(TaskItem item)
+        {
+            if (string.IsNullOrWhiteSpace(item.Name))
+            {
+                throw new ArgumentException("Must provide a valid name.");
+            }
+
+            try
+            {
+                await TaskItemRepository.Add(item).ConfigureAwait(false);
+
+                return item;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<AddChildResult> AddChildTaskItem(string parentId, TaskItem item)
         {
             if (string.IsNullOrWhiteSpace(item.Name))
