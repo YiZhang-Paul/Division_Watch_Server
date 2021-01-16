@@ -62,6 +62,7 @@ namespace Service.Services
                 item.Parent = parent.Id;
                 item.Category ??= parent.Category;
                 item.Deadline ??= parent.Deadline;
+                item.Recur = parent.Recur;
 
                 item.Priority ??= new RankItem
                 {
