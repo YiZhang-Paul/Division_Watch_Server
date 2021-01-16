@@ -1,3 +1,4 @@
+using Core.DTOs;
 using Core.Enums;
 using Core.Models;
 using Service.Repositories;
@@ -43,7 +44,7 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskItem> AddChildTaskItem(string parentId, TaskItem item)
+        public async Task<AddChildResult> AddChildTaskItem(string parentId, TaskItem item)
         {
             if (string.IsNullOrWhiteSpace(item.Name))
             {
@@ -59,6 +60,7 @@ namespace Service.Services
 
             try
             {
+                parent.Estimate = -1;
                 item.Parent = parent.Id;
                 item.Category ??= parent.Category;
                 item.Deadline ??= parent.Deadline;
@@ -70,9 +72,11 @@ namespace Service.Services
                     Name = Enum.GetName(typeof(Priority), Priority.Normal)
                 };
 
-                await TaskItemRepository.Add(item).ConfigureAwait(false);
+                var insertChildTask = TaskItemRepository.Add(item);
+                var updateParentTask = TaskItemRepository.Replace(parent);
+                await Task.WhenAll(insertChildTask, updateParentTask).ConfigureAwait(false);
 
-                return item;
+                return new AddChildResult { Parent = parent, Child = item };
             }
             catch
             {
