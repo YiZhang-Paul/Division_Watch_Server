@@ -112,20 +112,22 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskOptions> GetTaskOptions(TaskOptionsQuery query)
+        public async Task<TaskOptions> GetTaskOptions(string currentDate)
         {
-            var startDate = DateTime.Parse(query.CurrentDate);
+            var skullDuration = 1500000;
+            var startDate = DateTime.Parse(currentDate);
             var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
             var categories = await CategoryRepository.Get().ConfigureAwait(false);
-            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / query.EstimationBase);
-            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => query.EstimationBase * _);
+            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / skullDuration);
+            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => skullDuration * _);
 
             return new TaskOptions
             {
                 Categories = categories.ToList(),
                 Priorities = ToRankItem(typeof(Priority)).ToList(),
                 Deadlines = new List<string> { string.Empty }.Concat(deadlines).ToList(),
-                Estimates = new List<int> { 600000 }.Concat(estimates).ToList()
+                Estimates = new List<int> { 600000 }.Concat(estimates).ToList(),
+                SkullDuration = skullDuration
             };
         }
 

@@ -65,9 +65,9 @@ namespace WebApi.Controllers
 
         [HttpPost]
         [Route("options")]
-        public async Task<TaskOptions> GetTaskOptions([FromBody]TaskOptionsQuery query)
+        public async Task<TaskOptions> GetTaskOptions([FromBody]string currentDate)
         {
-            return await TaskItemService.GetTaskOptions(query).ConfigureAwait(false);
+            return await TaskItemService.GetTaskOptions(currentDate).ConfigureAwait(false);
         }
     }
 }
