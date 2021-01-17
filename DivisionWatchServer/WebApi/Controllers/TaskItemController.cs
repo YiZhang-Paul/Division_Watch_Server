@@ -1,3 +1,4 @@
+using Core.DTOs;
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
@@ -72,7 +73,7 @@ namespace WebApi.Controllers
 
         [HttpPut]
         [Route("")]
-        public async Task<bool> UpdateTaskItem([FromBody]TaskItem item)
+        public async Task<UpdateTaskResult> UpdateTaskItem([FromBody]TaskItem item)
         {
             return await TaskItemService.UpdateTaskItem(item).ConfigureAwait(false);
         }

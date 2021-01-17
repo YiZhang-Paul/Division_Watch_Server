@@ -114,17 +114,24 @@ namespace Service.Services
             }
         }
 
-        public async Task<bool> UpdateTaskItem(TaskItem item)
+        public async Task<UpdateTaskResult> UpdateTaskItem(TaskItem item)
         {
             try
             {
+                TaskItem parent = null;
                 await TaskItemRepository.Replace(item).ConfigureAwait(false);
 
-                return true;
+                if (!string.IsNullOrWhiteSpace(item.Parent))
+                {
+                    parent = await TaskItemRepository.Get(item.Parent).ConfigureAwait(false);
+                    await UpdateTotalEstimation(parent).ConfigureAwait(false);
+                }
+
+                return new UpdateTaskResult { Parent = parent, Target = item };
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 
