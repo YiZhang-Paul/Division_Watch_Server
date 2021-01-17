@@ -91,7 +91,6 @@ namespace Service.Services
 
             try
             {
-                parent.Estimate = -1;
                 item.Parent = parent.Id;
                 item.Category ??= parent.Category;
                 item.Deadline ??= parent.Deadline;
@@ -104,9 +103,8 @@ namespace Service.Services
                     Name = Enum.GetName(typeof(Priority), Priority.Normal)
                 };
 
-                var insertChildTask = TaskItemRepository.Add(item);
-                var updateParentTask = TaskItemRepository.Replace(parent);
-                await Task.WhenAll(insertChildTask, updateParentTask).ConfigureAwait(false);
+                await TaskItemRepository.Add(item).ConfigureAwait(false);
+                await UpdateTotalEstimation(parent).ConfigureAwait(false);
 
                 return new AddChildResult { Parent = parent, Child = item };
             }
@@ -169,6 +167,13 @@ namespace Service.Services
                 Rank = (int)Enum.Parse(type, _),
                 Name = _
             });
+        }
+
+        private async Task UpdateTotalEstimation(TaskItem parent)
+        {
+            var children = await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false);
+            parent.Estimate = children.Sum(_ => _.Estimate);
+            await TaskItemRepository.Replace(parent).ConfigureAwait(false);
         }
     }
 }
