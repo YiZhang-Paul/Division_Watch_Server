@@ -135,17 +135,52 @@ namespace Service.Services
             }
         }
 
-        public async Task<bool> DeleteTaskItem(string id)
+        public async Task<DeleteTaskResult> DeleteTaskItem(string id, bool keepChildren)
         {
             try
             {
+                var result = new DeleteTaskResult();
+                var current = await TaskItemRepository.Get(id).ConfigureAwait(false);
+
+                if (current == null)
+                {
+                    return null;
+                }
+
                 await TaskItemRepository.Delete(id).ConfigureAwait(false);
 
-                return true;
+                if (!string.IsNullOrWhiteSpace(current.Parent))
+                {
+                    result.Parent = await TaskItemRepository.Get(current.Parent).ConfigureAwait(false);
+                    await UpdateTotalEstimation(result.Parent).ConfigureAwait(false);
+                }
+                else if (!current.IsInterruption)
+                {
+                    var tasks = new List<Task>();
+
+                    foreach (var child in await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false))
+                    {
+                        if (keepChildren)
+                        {
+                            child.Parent = null;
+                            result.UpdatedChildren.Add(child);
+                            tasks.Add(TaskItemRepository.Replace(child));
+                        }
+                        else
+                        {
+                            result.DeletedChildren.Add(child);
+                            tasks.Add(TaskItemRepository.Delete(child.Id));
+                        }
+                    }
+
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                }
+
+                return result;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 
@@ -176,10 +211,11 @@ namespace Service.Services
             });
         }
 
-        private async Task UpdateTotalEstimation(TaskItem parent)
+        private async Task UpdateTotalEstimation(TaskItem parent, int minimum = SkullDuration)
         {
             var children = await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false);
-            parent.Estimate = children.Sum(_ => _.Estimate);
+            var total = children.Sum(_ => _.Estimate);
+            parent.Estimate = total == 0 ? minimum : total;
             await TaskItemRepository.Replace(parent).ConfigureAwait(false);
         }
     }

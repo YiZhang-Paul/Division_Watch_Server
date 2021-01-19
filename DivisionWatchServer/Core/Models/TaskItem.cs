@@ -5,6 +5,7 @@ namespace Core.Models
 {
     public class TaskItem : DatabaseRecord
     {
+        public string Parent { get; set; } = null;
         public string Name { get; set; }
         public Category Category { get; set; }
         public RankItem Priority { get; set; }
@@ -12,7 +13,6 @@ namespace Core.Models
         public string Deadline { get; set; } = string.Empty;
         public List<bool> Recur { get; set; } = new List<bool>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
-        public string Parent { get; set; } = null;
         public bool IsInterruption { get; set; }
         public bool IsCompleted { get; set; }
 

@@ -80,9 +80,9 @@ namespace WebApi.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<bool> DeleteTaskItem(string id)
+        public async Task<DeleteTaskResult> DeleteTaskItem([FromQuery]bool keepChildren, string id)
         {
-            return await TaskItemService.DeleteTaskItem(id).ConfigureAwait(false);
+            return await TaskItemService.DeleteTaskItem(id, keepChildren).ConfigureAwait(false);
         }
 
         [HttpPost]
