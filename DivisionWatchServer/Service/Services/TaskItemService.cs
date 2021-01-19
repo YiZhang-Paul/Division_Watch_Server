@@ -118,16 +118,16 @@ namespace Service.Services
         {
             try
             {
-                TaskItem parent = null;
+                var result = new UpdateTaskResult { Target = item };
                 await TaskItemRepository.Replace(item).ConfigureAwait(false);
 
                 if (!string.IsNullOrWhiteSpace(item.Parent))
                 {
-                    parent = await TaskItemRepository.Get(item.Parent).ConfigureAwait(false);
-                    await UpdateTotalEstimation(parent).ConfigureAwait(false);
+                    result.Parent = await TaskItemRepository.Get(item.Parent).ConfigureAwait(false);
+                    await UpdateTotalEstimation(result.Parent).ConfigureAwait(false);
                 }
 
-                return new UpdateTaskResult { Parent = parent, Target = item };
+                return result;
             }
             catch
             {
@@ -156,24 +156,7 @@ namespace Service.Services
                 }
                 else if (!current.IsInterruption)
                 {
-                    var tasks = new List<Task>();
-
-                    foreach (var child in await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false))
-                    {
-                        if (keepChildren)
-                        {
-                            child.Parent = null;
-                            result.UpdatedChildren.Add(child);
-                            tasks.Add(TaskItemRepository.Replace(child));
-                        }
-                        else
-                        {
-                            result.DeletedChildren.Add(child);
-                            tasks.Add(TaskItemRepository.Delete(child.Id));
-                        }
-                    }
-
-                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                    await ProcessChildTasks(id, keepChildren, result).ConfigureAwait(false);
                 }
 
                 return result;
@@ -200,6 +183,28 @@ namespace Service.Services
                 Estimates = new List<int> { 600000 }.Concat(estimates).ToList(),
                 SkullDuration = SkullDuration
             };
+        }
+
+        private async Task ProcessChildTasks(string id, bool keepChildren, DeleteTaskResult result)
+        {
+            var tasks = new List<Task>();
+
+            foreach (var child in await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false))
+            {
+                if (keepChildren)
+                {
+                    child.Parent = null;
+                    result.UpdatedChildren.Add(child);
+                    tasks.Add(TaskItemRepository.Replace(child));
+                }
+                else
+                {
+                    result.DeletedChildren.Add(child);
+                    tasks.Add(TaskItemRepository.Delete(child.Id));
+                }
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         private IEnumerable<RankItem> ToRankItem(Type type)
