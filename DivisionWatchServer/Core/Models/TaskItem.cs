@@ -7,7 +7,7 @@ namespace Core.Models
     {
         public string Parent { get; set; } = null;
         public string Name { get; set; }
-        public Category Category { get; set; }
+        public string CategoryId { get; set; }
         public RankItem Priority { get; set; }
         public int Estimate { get; set; }
         public string Deadline { get; set; } = string.Empty;

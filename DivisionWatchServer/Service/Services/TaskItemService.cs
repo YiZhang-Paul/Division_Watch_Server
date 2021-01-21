@@ -51,7 +51,7 @@ namespace Service.Services
 
             return new TaskItem
             {
-                Category = categories.FirstOrDefault(),
+                CategoryId = categories.FirstOrDefault()?.Id,
                 Estimate = SkullDuration
             };
         }
@@ -92,7 +92,7 @@ namespace Service.Services
             try
             {
                 item.Parent = parent.Id;
-                item.Category ??= parent.Category;
+                item.CategoryId ??= parent.CategoryId;
                 item.Deadline ??= parent.Deadline;
                 item.Estimate = SkullDuration;
                 item.Recur = parent.Recur;
