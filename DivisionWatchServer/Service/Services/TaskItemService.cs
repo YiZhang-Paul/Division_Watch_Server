@@ -171,13 +171,11 @@ namespace Service.Services
         {
             var startDate = DateTime.Parse(currentDate);
             var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
-            var categories = await CategoryRepository.Get().ConfigureAwait(false);
             var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / SkullDuration);
             var estimates = Enumerable.Range(1, maxSkulls).Select(_ => SkullDuration * _);
 
             return new TaskOptions
             {
-                Categories = categories.ToList(),
                 Priorities = ToRankItem(typeof(Priority)).ToList(),
                 Deadlines = new List<string> { string.Empty }.Concat(deadlines).ToList(),
                 Estimates = new List<int> { 600000 }.Concat(estimates).ToList(),
