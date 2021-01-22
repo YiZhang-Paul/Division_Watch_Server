@@ -45,6 +45,27 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("")]
+        public async Task<IActionResult> UpdateCategory([FromBody]Category category)
+        {
+            if (string.IsNullOrWhiteSpace(category.Name))
+            {
+                return BadRequest("Must provide a valid name.");
+            }
+
+            try
+            {
+                await CategoryRepository.Replace(category).ConfigureAwait(false);
+
+                return Ok(true);
+            }
+            catch
+            {
+                return BadRequest("Failed to update the category.");
+            }
+        }
+
         [HttpDelete]
         [Route("{id}")]
         public async Task<bool> DeleteCategory(string id)

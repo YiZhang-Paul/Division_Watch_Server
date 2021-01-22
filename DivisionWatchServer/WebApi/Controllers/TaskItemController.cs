@@ -1,3 +1,4 @@
+using Core.DTOs;
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
@@ -25,7 +26,7 @@ namespace WebApi.Controllers
         {
             var items = await TaskItemService.GetIncompleteTaskItems(limit).ConfigureAwait(false);
 
-            return items.OrderByDescending(_ => _.Priority.Rank);
+            return items.OrderByDescending(_ => _.Priority.Rank).OrderBy(_ => _.Estimate);
         }
 
         [HttpGet]
@@ -33,6 +34,27 @@ namespace WebApi.Controllers
         public async Task<TaskItem> GetTaskItem(string id)
         {
             return await TaskItemService.GetTaskItem(id).ConfigureAwait(false);
+        }
+
+        [HttpGet]
+        [Route("empty")]
+        public async Task<TaskItem> GetEmptyTaskItem()
+        {
+            return await TaskItemService.GetEmptyTaskItem().ConfigureAwait(false);
+        }
+
+        [HttpPost]
+        [Route("")]
+        public async Task<IActionResult> AddTaskItem([FromBody]TaskItem item)
+        {
+            try
+            {
+                return Ok(await TaskItemService.AddTaskItem(item).ConfigureAwait(false));
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
         }
 
         [HttpPost]
@@ -51,23 +73,23 @@ namespace WebApi.Controllers
 
         [HttpPut]
         [Route("")]
-        public async Task<bool> UpdateTaskItem([FromBody]TaskItem item)
+        public async Task<UpdateTaskResult> UpdateTaskItem([FromBody]TaskItem item)
         {
             return await TaskItemService.UpdateTaskItem(item).ConfigureAwait(false);
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<bool> DeleteTaskItem(string id)
+        public async Task<DeleteTaskResult> DeleteTaskItem([FromQuery]bool keepChildren, string id)
         {
-            return await TaskItemService.DeleteTaskItem(id).ConfigureAwait(false);
+            return await TaskItemService.DeleteTaskItem(id, keepChildren).ConfigureAwait(false);
         }
 
         [HttpPost]
         [Route("options")]
-        public async Task<TaskOptions> GetTaskOptions([FromBody]TaskOptionsQuery query)
+        public async Task<TaskOptions> GetTaskOptions([FromBody]string currentDate)
         {
-            return await TaskItemService.GetTaskOptions(query).ConfigureAwait(false);
+            return await TaskItemService.GetTaskOptions(currentDate).ConfigureAwait(false);
         }
     }
 }

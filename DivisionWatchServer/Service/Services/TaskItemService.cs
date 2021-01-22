@@ -1,3 +1,4 @@
+using Core.DTOs;
 using Core.Enums;
 using Core.Models;
 using Service.Repositories;
@@ -10,6 +11,7 @@ namespace Service.Services
 {
     public class TaskItemService
     {
+        private const int SkullDuration = 1500000;
         private CategoryRepository CategoryRepository { get; set; }
         private TaskItemRepository TaskItemRepository { get; set; }
 
@@ -43,7 +45,37 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskItem> AddChildTaskItem(string parentId, TaskItem item)
+        public async Task<TaskItem> GetEmptyTaskItem()
+        {
+            var categories = await CategoryRepository.Get(1).ConfigureAwait(false);
+
+            return new TaskItem
+            {
+                CategoryId = categories.FirstOrDefault()?.Id,
+                Estimate = SkullDuration
+            };
+        }
+
+        public async Task<TaskItem> AddTaskItem(TaskItem item)
+        {
+            if (string.IsNullOrWhiteSpace(item.Name))
+            {
+                throw new ArgumentException("Must provide a valid name.");
+            }
+
+            try
+            {
+                await TaskItemRepository.Add(item).ConfigureAwait(false);
+
+                return item;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<AddChildResult> AddChildTaskItem(string parentId, TaskItem item)
         {
             if (string.IsNullOrWhiteSpace(item.Name))
             {
@@ -60,8 +92,10 @@ namespace Service.Services
             try
             {
                 item.Parent = parent.Id;
-                item.Category ??= parent.Category;
+                item.CategoryId ??= parent.CategoryId;
                 item.Deadline ??= parent.Deadline;
+                item.Estimate = SkullDuration;
+                item.Recur = parent.Recur;
 
                 item.Priority ??= new RankItem
                 {
@@ -70,8 +104,9 @@ namespace Service.Services
                 };
 
                 await TaskItemRepository.Add(item).ConfigureAwait(false);
+                await UpdateTotalEstimation(parent).ConfigureAwait(false);
 
-                return item;
+                return new AddChildResult { Parent = parent, Child = item };
             }
             catch
             {
@@ -79,48 +114,95 @@ namespace Service.Services
             }
         }
 
-        public async Task<bool> UpdateTaskItem(TaskItem item)
+        public async Task<UpdateTaskResult> UpdateTaskItem(TaskItem item)
         {
             try
             {
+                var result = new UpdateTaskResult { Target = item };
                 await TaskItemRepository.Replace(item).ConfigureAwait(false);
 
-                return true;
+                if (!string.IsNullOrWhiteSpace(item.Parent))
+                {
+                    result.Parent = await TaskItemRepository.Get(item.Parent).ConfigureAwait(false);
+                    await UpdateTotalEstimation(result.Parent).ConfigureAwait(false);
+                }
+
+                return result;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 
-        public async Task<bool> DeleteTaskItem(string id)
+        public async Task<DeleteTaskResult> DeleteTaskItem(string id, bool keepChildren)
         {
             try
             {
+                var result = new DeleteTaskResult();
+                var current = await TaskItemRepository.Get(id).ConfigureAwait(false);
+
+                if (current == null)
+                {
+                    return null;
+                }
+
                 await TaskItemRepository.Delete(id).ConfigureAwait(false);
 
-                return true;
+                if (!string.IsNullOrWhiteSpace(current.Parent))
+                {
+                    result.Parent = await TaskItemRepository.Get(current.Parent).ConfigureAwait(false);
+                    await UpdateTotalEstimation(result.Parent).ConfigureAwait(false);
+                }
+                else if (!current.IsInterruption)
+                {
+                    await ProcessChildTasks(id, keepChildren, result).ConfigureAwait(false);
+                }
+
+                return result;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 
-        public async Task<TaskOptions> GetTaskOptions(TaskOptionsQuery query)
+        public async Task<TaskOptions> GetTaskOptions(string currentDate)
         {
-            var startDate = DateTime.Parse(query.CurrentDate);
+            var startDate = DateTime.Parse(currentDate);
             var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
-            var categories = await CategoryRepository.Get().ConfigureAwait(false);
-            var estimates = Enumerable.Range(1, 8).Select(_ => query.EstimationBase * _);
+            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / SkullDuration);
+            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => SkullDuration * _);
 
             return new TaskOptions
             {
-                Categories = categories.ToList(),
                 Priorities = ToRankItem(typeof(Priority)).ToList(),
-                Deadlines = deadlines.ToList(),
-                Estimates = estimates.ToList()
+                Deadlines = new List<string> { string.Empty }.Concat(deadlines).ToList(),
+                Estimates = new List<int> { 600000 }.Concat(estimates).ToList(),
+                SkullDuration = SkullDuration
             };
+        }
+
+        private async Task ProcessChildTasks(string id, bool keepChildren, DeleteTaskResult result)
+        {
+            var tasks = new List<Task>();
+
+            foreach (var child in await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false))
+            {
+                if (keepChildren)
+                {
+                    child.Parent = null;
+                    result.UpdatedChildren.Add(child);
+                    tasks.Add(TaskItemRepository.Replace(child));
+                }
+                else
+                {
+                    result.DeletedChildren.Add(child);
+                    tasks.Add(TaskItemRepository.Delete(child.Id));
+                }
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         private IEnumerable<RankItem> ToRankItem(Type type)
@@ -130,6 +212,14 @@ namespace Service.Services
                 Rank = (int)Enum.Parse(type, _),
                 Name = _
             });
+        }
+
+        private async Task UpdateTotalEstimation(TaskItem parent, int minimum = SkullDuration)
+        {
+            var children = await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false);
+            var total = children.Sum(_ => _.Estimate);
+            parent.Estimate = total == 0 ? minimum : total;
+            await TaskItemRepository.Replace(parent).ConfigureAwait(false);
         }
     }
 }
