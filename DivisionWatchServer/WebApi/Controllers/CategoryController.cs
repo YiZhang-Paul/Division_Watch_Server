@@ -37,7 +37,7 @@ namespace WebApi.Controllers
             {
                 await CategoryRepository.Add(category).ConfigureAwait(false);
 
-                return Ok(category.Id);
+                return Ok(category);
             }
             catch
             {
