@@ -12,6 +12,7 @@ namespace Core.Models
         public int Estimate { get; set; }
         public string Deadline { get; set; } = string.Empty;
         public List<bool> Recur { get; set; } = new List<bool>();
+        public List<ChecklistItem> Checklist { get; set; } = new List<ChecklistItem>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();
         public bool IsInterruption { get; set; }
         public bool IsCompleted { get; set; }
