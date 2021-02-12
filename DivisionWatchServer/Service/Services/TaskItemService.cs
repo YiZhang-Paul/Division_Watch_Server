@@ -167,7 +167,7 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskOptions> GetTaskOptions(string currentDate)
+        public TaskOptions GetTaskOptions(string currentDate)
         {
             var startDate = DateTime.Parse(currentDate);
             var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
