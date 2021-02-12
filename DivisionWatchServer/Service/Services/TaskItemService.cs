@@ -47,11 +47,11 @@ namespace Service.Services
 
         public async Task<TaskItem> GetEmptyTaskItem()
         {
-            var categories = await CategoryRepository.Get(1).ConfigureAwait(false);
+            var categories = await CategoryRepository.Get().ConfigureAwait(false);
 
             return new TaskItem
             {
-                CategoryId = categories.FirstOrDefault()?.Id,
+                CategoryId = categories.FirstOrDefault(_ => !_.IsEditable && _.Name == "Default")?.Id,
                 Estimate = SkullDuration
             };
         }
