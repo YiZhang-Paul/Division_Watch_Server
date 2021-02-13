@@ -72,6 +72,13 @@ namespace WebApi.Controllers
         }
 
         [HttpPut]
+        [Route("convert")]
+        public async Task<TaskItem> ConvertToTaskItem([FromBody]TaskItem interruption)
+        {
+            return await TaskItemService.ConvertToTaskItem(interruption).ConfigureAwait(false);
+        }
+
+        [HttpPut]
         [Route("")]
         public async Task<UpdateTaskResult> UpdateTaskItem([FromBody]TaskItem item)
         {

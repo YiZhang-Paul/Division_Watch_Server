@@ -115,6 +115,13 @@ namespace Service.Services
             }
         }
 
+        public async Task<TaskItem> ConvertToTaskItem(TaskItem interruption)
+        {
+            interruption.IsInterruption = false;
+
+            return (await UpdateTaskItem(interruption).ConfigureAwait(false))?.Target;
+        }
+
         public async Task<UpdateTaskResult> UpdateTaskItem(TaskItem item)
         {
             try
