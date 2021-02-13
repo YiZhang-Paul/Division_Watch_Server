@@ -38,9 +38,9 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("empty")]
-        public async Task<TaskItem> GetEmptyTaskItem()
+        public async Task<TaskItem> GetEmptyTaskItem([FromQuery]bool isInterruption = false)
         {
-            return await TaskItemService.GetEmptyTaskItem().ConfigureAwait(false);
+            return await TaskItemService.GetEmptyTaskItem(isInterruption).ConfigureAwait(false);
         }
 
         [HttpPost]

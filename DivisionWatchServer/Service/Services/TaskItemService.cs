@@ -45,14 +45,15 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskItem> GetEmptyTaskItem()
+        public async Task<TaskItem> GetEmptyTaskItem(bool isInterruption)
         {
             var categories = await CategoryRepository.Get().ConfigureAwait(false);
 
             return new TaskItem
             {
                 CategoryId = categories.FirstOrDefault(_ => !_.IsEditable && _.Name == "Default")?.Id,
-                Estimate = SkullDuration
+                Estimate = SkullDuration,
+                IsInterruption = isInterruption
             };
         }
 
