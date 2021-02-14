@@ -93,7 +93,7 @@ namespace Service.Services
             try
             {
                 item.Parent = parent.Id;
-                item.CategoryId ??= parent.CategoryId;
+                item.CategoryId = string.Empty;
                 item.Deadline ??= parent.Deadline;
                 item.Estimate = SkullDuration;
                 item.Recur = parent.Recur;
