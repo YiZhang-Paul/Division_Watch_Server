@@ -115,7 +115,7 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskItem> ConvertToTaskItem(TaskItem interruption)
+        public async Task<TaskItem> ConvertInterruptionToTaskItem(TaskItem interruption)
         {
             interruption.IsInterruption = false;
 
