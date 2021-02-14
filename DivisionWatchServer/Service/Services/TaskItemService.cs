@@ -115,11 +115,28 @@ namespace Service.Services
             }
         }
 
+        public async Task<TaskItem> ConvertChildToParent(TaskItem child)
+        {
+            var parent = await TaskItemRepository.Get(child.Parent).ConfigureAwait(false);
+
+            if (parent == null)
+            {
+                return null;
+            }
+
+            child.Parent = string.Empty;
+            child.CategoryId = parent.CategoryId;
+            await TaskItemRepository.Replace(child).ConfigureAwait(false);
+
+            return child;
+        }
+
         public async Task<TaskItem> ConvertInterruptionToTaskItem(TaskItem interruption)
         {
             interruption.IsInterruption = false;
+            await TaskItemRepository.Replace(interruption).ConfigureAwait(false);
 
-            return (await UpdateTaskItem(interruption).ConfigureAwait(false))?.Target;
+            return interruption;
         }
 
         public async Task<UpdateTaskResult> UpdateTaskItem(TaskItem item)

@@ -72,6 +72,13 @@ namespace WebApi.Controllers
         }
 
         [HttpPut]
+        [Route("convert-child")]
+        public async Task<TaskItem> ConvertChildToParent([FromBody]TaskItem child)
+        {
+            return await TaskItemService.ConvertChildToParent(child).ConfigureAwait(false);
+        }
+
+        [HttpPut]
         [Route("convert-interruption")]
         public async Task<TaskItem> ConvertInterruptionToTaskItem([FromBody]TaskItem interruption)
         {
