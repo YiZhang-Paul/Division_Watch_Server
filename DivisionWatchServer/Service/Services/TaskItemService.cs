@@ -181,7 +181,7 @@ namespace Service.Services
                 }
                 else if (!current.IsInterruption)
                 {
-                    await ProcessChildTasks(id, keepChildren, result).ConfigureAwait(false);
+                    await ProcessChildTasks(current, keepChildren, result).ConfigureAwait(false);
                 }
 
                 return result;
@@ -208,15 +208,16 @@ namespace Service.Services
             };
         }
 
-        private async Task ProcessChildTasks(string id, bool keepChildren, DeleteTaskResult result)
+        private async Task ProcessChildTasks(TaskItem parent, bool keepChildren, DeleteTaskResult result)
         {
             var tasks = new List<Task>();
 
-            foreach (var child in await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false))
+            foreach (var child in await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false))
             {
                 if (keepChildren)
                 {
                     child.Parent = null;
+                    child.CategoryId = parent.CategoryId;
                     result.UpdatedChildren.Add(child);
                     tasks.Add(TaskItemRepository.Replace(child));
                 }
