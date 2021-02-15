@@ -60,6 +60,14 @@ namespace Service.Repositories
             await Collection.DeleteOneAsync(filter).ConfigureAwait(false);
         }
 
+        public async Task DeleteMany(IEnumerable<T> documents)
+        {
+            var ids = documents.Select(_ => _.Id);
+            var filter = Builders<T>.Filter.In(_ => _.Id, ids);
+
+            await Collection.DeleteManyAsync(filter).ConfigureAwait(false);
+        }
+
         private IMongoCollection<T> Connect(DatabaseConfiguration configuration, string collection)
         {
             var database = new MongoClient(configuration.Url).GetDatabase(configuration.Name);

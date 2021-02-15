@@ -93,7 +93,7 @@ namespace Service.Services
             try
             {
                 item.Parent = parent.Id;
-                item.CategoryId = string.Empty;
+                item.CategoryId = null;
                 item.Deadline ??= parent.Deadline;
                 item.Estimate = SkullDuration;
                 item.Recur = parent.Recur;
@@ -124,7 +124,7 @@ namespace Service.Services
                 return null;
             }
 
-            child.Parent = string.Empty;
+            child.Parent = null;
             child.CategoryId = parent.CategoryId;
             await TaskItemRepository.Replace(child).ConfigureAwait(false);
 
@@ -210,25 +210,24 @@ namespace Service.Services
 
         private async Task ProcessChildTasks(TaskItem parent, bool keepChildren, DeleteTaskResult result)
         {
-            var tasks = new List<Task>();
+            var tasks = await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false);
 
-            foreach (var child in await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false))
+            if (!keepChildren)
             {
-                if (keepChildren)
-                {
-                    child.Parent = null;
-                    child.CategoryId = parent.CategoryId;
-                    result.UpdatedChildren.Add(child);
-                    tasks.Add(TaskItemRepository.Replace(child));
-                }
-                else
-                {
-                    result.DeletedChildren.Add(child);
-                    tasks.Add(TaskItemRepository.Delete(child.Id));
-                }
+                result.DeletedChildren = tasks.ToList();
+                await TaskItemRepository.DeleteMany(result.DeletedChildren).ConfigureAwait(false);
+
+                return;
             }
 
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            foreach (var task in tasks)
+            {
+                task.Parent = null;
+                task.CategoryId = parent.CategoryId;
+                result.UpdatedChildren.Add(task);
+            }
+
+            await TaskItemRepository.ReplaceMany(result.UpdatedChildren).ConfigureAwait(false);
         }
 
         private IEnumerable<RankItem> ToRankItem(Type type)
