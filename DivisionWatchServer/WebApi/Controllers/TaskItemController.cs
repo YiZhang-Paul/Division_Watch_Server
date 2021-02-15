@@ -101,9 +101,9 @@ namespace WebApi.Controllers
 
         [HttpPost]
         [Route("options")]
-        public TaskOptions GetTaskOptions([FromBody]string currentDate)
+        public TaskOptions GetTaskOptions()
         {
-            return TaskItemService.GetTaskOptions(currentDate);
+            return TaskItemService.GetTaskOptions();
         }
     }
 }
