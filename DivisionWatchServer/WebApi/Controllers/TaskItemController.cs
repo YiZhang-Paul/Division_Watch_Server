@@ -99,7 +99,7 @@ namespace WebApi.Controllers
             return await TaskItemService.DeleteTaskItem(id, keepChildren).ConfigureAwait(false);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("options")]
         public TaskOptions GetTaskOptions()
         {
