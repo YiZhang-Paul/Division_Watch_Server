@@ -19,11 +19,7 @@ namespace Service.Services
 
         public async Task<Category> AddCategory(Category category)
         {
-            if (string.IsNullOrWhiteSpace(category.Name))
-            {
-                throw new ArgumentException("Must provide a valid name.");
-            }
-
+            await ValidateCategory(category).ConfigureAwait(false);
             await CategoryRepository.Add(category).ConfigureAwait(false);
 
             return category;
@@ -31,11 +27,7 @@ namespace Service.Services
 
         public async Task<bool> UpdateCategory(Category category)
         {
-            if (string.IsNullOrWhiteSpace(category.Name))
-            {
-                throw new ArgumentException("Must provide a valid name.");
-            }
-
+            await ValidateCategory(category).ConfigureAwait(false);
             await CategoryRepository.Replace(category).ConfigureAwait(false);
 
             return true;
@@ -62,6 +54,19 @@ namespace Service.Services
             catch
             {
                 return false;
+            }
+        }
+
+        private async Task ValidateCategory(Category category)
+        {
+            if (string.IsNullOrWhiteSpace(category.Name))
+            {
+                throw new ArgumentException("Must provide a valid name.");
+            }
+
+            if (await CategoryRepository.GetCategoryByName(category.Name).ConfigureAwait(false) != null)
+            {
+                throw new ArgumentException("Must provide a unique name.");
             }
         }
     }
