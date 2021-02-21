@@ -27,6 +27,7 @@ namespace WebApi
             });
 
             services.AddControllers();
+            services.AddSingleton<CategoryService, CategoryService>();
             services.AddSingleton<TaskItemService, TaskItemService>();
             services.AddScoped<CategoryRepository, CategoryRepository>();
             services.AddScoped<TaskItemRepository, TaskItemRepository>();
