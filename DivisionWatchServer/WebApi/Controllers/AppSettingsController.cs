@@ -23,6 +23,13 @@ namespace WebApi.Controllers
             return await AppSettingsService.GetSessionSettings().ConfigureAwait(false);
         }
 
+        [HttpGet]
+        [Route("session/options")]
+        public SessionSettingsOptions GetSessionSettingsOptions()
+        {
+            return AppSettingsService.GetSessionSettingsOptions();
+        }
+
         [HttpPut]
         [Route("session")]
         public async Task<bool> GetSessionSettings([FromBody]SessionSettings settings)
