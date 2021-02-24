@@ -101,9 +101,9 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("options")]
-        public TaskOptions GetTaskOptions()
+        public async Task<TaskOptions> GetTaskOptions()
         {
-            return TaskItemService.GetTaskOptions();
+            return await TaskItemService.GetTaskOptions().ConfigureAwait(false);
         }
     }
 }
