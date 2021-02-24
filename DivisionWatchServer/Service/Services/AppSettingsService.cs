@@ -32,6 +32,12 @@ namespace Service.Services
                     },
                     new DurationSeries
                     {
+                        SessionDuration = oneMinute * 40,
+                        ShortBreakDuration = oneMinute * 12,
+                        LongBreakRange = new Range<int> { Min = oneMinute * 23, Max = oneMinute * 41 }
+                    },
+                    new DurationSeries
+                    {
                         SessionDuration = oneMinute * 52,
                         ShortBreakDuration = oneMinute * 17,
                         LongBreakRange = new Range<int> { Min = oneMinute * 30, Max = oneMinute * 50 }

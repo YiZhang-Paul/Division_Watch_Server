@@ -32,7 +32,7 @@ namespace WebApi.Controllers
 
         [HttpPut]
         [Route("session")]
-        public async Task<bool> GetSessionSettings([FromBody]SessionSettings settings)
+        public async Task<bool> UpdateSessionSettings([FromBody]SessionSettings settings)
         {
             return await AppSettingsService.UpdateSessionSettings(settings).ConfigureAwait(false);
         }
