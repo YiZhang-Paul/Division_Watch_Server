@@ -64,7 +64,9 @@ namespace Service.Services
                 throw new ArgumentException("Must provide a valid name.");
             }
 
-            if (await CategoryRepository.GetCategoryByName(category.Name).ConfigureAwait(false) != null)
+            var existing = await CategoryRepository.GetCategoryByName(category.Name).ConfigureAwait(false);
+
+            if (existing != null && existing.Id != category.Id)
             {
                 throw new ArgumentException("Must provide a unique name.");
             }
