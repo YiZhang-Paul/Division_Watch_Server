@@ -23,6 +23,13 @@ namespace WebApi.Controllers
             return await AppSettingsService.GetSoundSettings().ConfigureAwait(false);
         }
 
+        [HttpGet]
+        [Route("sound/options")]
+        public SoundSettingsOptions GetSoundSettingsOptions()
+        {
+            return AppSettingsService.GetSoundSettingsOptions();
+        }
+
         [HttpPut]
         [Route("sound")]
         public async Task<bool> UpdateSoundSettings([FromBody]SoundSettings settings)

@@ -21,6 +21,16 @@ namespace Service.Services
             return (await GetAppSettings().ConfigureAwait(false)).SoundSettings;
         }
 
+        public SoundSettingsOptions GetSoundSettingsOptions()
+        {
+            return new SoundSettingsOptions
+            {
+                MasterVolume = new Range<int> { Min = 0, Max = 100 },
+                UIVolume = new Range<int> { Min = 0, Max = 100 },
+                ClockVolume = new Range<int> { Min = 0, Max = 100 }
+            };
+        }
+
         public async Task<bool> UpdateSoundSettings(SoundSettings settings)
         {
             try
