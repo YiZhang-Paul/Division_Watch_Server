@@ -17,6 +17,20 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("sound")]
+        public async Task<SoundSettings> GetSoundSettings()
+        {
+            return await AppSettingsService.GetSoundSettings().ConfigureAwait(false);
+        }
+
+        [HttpPut]
+        [Route("sound")]
+        public async Task<bool> UpdateSoundSettings([FromBody]SoundSettings settings)
+        {
+            return await AppSettingsService.UpdateSoundSettings(settings).ConfigureAwait(false);
+        }
+
+        [HttpGet]
         [Route("session")]
         public async Task<SessionSettings> GetSessionSettings()
         {

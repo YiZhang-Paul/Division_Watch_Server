@@ -16,6 +16,27 @@ namespace Service.Services
             AppSettingsRepository = appSettingsRepository;
         }
 
+        public async Task<SoundSettings> GetSoundSettings()
+        {
+            return (await GetAppSettings().ConfigureAwait(false)).SoundSettings;
+        }
+
+        public async Task<bool> UpdateSoundSettings(SoundSettings settings)
+        {
+            try
+            {
+                var appSettings = await GetAppSettings().ConfigureAwait(false);
+                appSettings.SoundSettings = settings;
+                await AppSettingsRepository.Replace(appSettings).ConfigureAwait(false);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public SessionSettingsOptions GetSessionSettingsOptions()
         {
             var oneMinute = 1000 * 60;
