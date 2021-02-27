@@ -26,7 +26,7 @@ namespace Service.Services
             return new SoundSettingsOptions
             {
                 MasterVolume = new Range<int> { Min = 0, Max = 100 },
-                UIVolume = new Range<int> { Min = 0, Max = 100 },
+                UiVolume = new Range<int> { Min = 0, Max = 100 },
                 ClockVolume = new Range<int> { Min = 0, Max = 100 }
             };
         }
