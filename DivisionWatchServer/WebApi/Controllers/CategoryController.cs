@@ -1,6 +1,8 @@
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Repositories;
+using Service.Services;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,11 +12,13 @@ namespace WebApi.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
+        private CategoryService CategoryService { get; set; }
         private CategoryRepository CategoryRepository { get; set; }
 
-        public CategoryController(CategoryRepository categoryRepository)
+        public CategoryController(CategoryRepository categoryRepository, CategoryService categoryService)
         {
             CategoryRepository = categoryRepository;
+            CategoryService = categoryService;
         }
 
         [HttpGet]
@@ -28,16 +32,13 @@ namespace WebApi.Controllers
         [Route("")]
         public async Task<IActionResult> AddCategory([FromBody]Category category)
         {
-            if (string.IsNullOrWhiteSpace(category.Name))
-            {
-                return BadRequest("Must provide a valid name.");
-            }
-
             try
             {
-                await CategoryRepository.Add(category).ConfigureAwait(false);
-
-                return Ok(category);
+                return Ok(await CategoryService.AddCategory(category).ConfigureAwait(false));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
             }
             catch
             {
@@ -49,16 +50,13 @@ namespace WebApi.Controllers
         [Route("")]
         public async Task<IActionResult> UpdateCategory([FromBody]Category category)
         {
-            if (string.IsNullOrWhiteSpace(category.Name))
-            {
-                return BadRequest("Must provide a valid name.");
-            }
-
             try
             {
-                await CategoryRepository.Replace(category).ConfigureAwait(false);
-
-                return Ok(true);
+                return Ok(await CategoryService.UpdateCategory(category).ConfigureAwait(false));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
             }
             catch
             {
@@ -68,18 +66,9 @@ namespace WebApi.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<bool> DeleteCategory(string id)
+        public async Task<bool> DeleteCategory([FromQuery]string transfer, string id)
         {
-            try
-            {
-                await CategoryRepository.Delete(id).ConfigureAwait(false);
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return await CategoryService.DeleteCategory(id, transfer).ConfigureAwait(false);
         }
     }
 }

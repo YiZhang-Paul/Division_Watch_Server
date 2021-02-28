@@ -38,9 +38,9 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("empty")]
-        public async Task<TaskItem> GetEmptyTaskItem()
+        public async Task<TaskItem> GetEmptyTaskItem([FromQuery]bool isInterruption = false)
         {
-            return await TaskItemService.GetEmptyTaskItem().ConfigureAwait(false);
+            return await TaskItemService.GetEmptyTaskItem(isInterruption).ConfigureAwait(false);
         }
 
         [HttpPost]
@@ -72,6 +72,20 @@ namespace WebApi.Controllers
         }
 
         [HttpPut]
+        [Route("convert-child")]
+        public async Task<TaskItem> ConvertChildToParent([FromBody]TaskItem child)
+        {
+            return await TaskItemService.ConvertChildToParent(child).ConfigureAwait(false);
+        }
+
+        [HttpPut]
+        [Route("convert-interruption")]
+        public async Task<TaskItem> ConvertInterruptionToTaskItem([FromBody]TaskItem interruption)
+        {
+            return await TaskItemService.ConvertInterruptionToTaskItem(interruption).ConfigureAwait(false);
+        }
+
+        [HttpPut]
         [Route("")]
         public async Task<UpdateTaskResult> UpdateTaskItem([FromBody]TaskItem item)
         {
@@ -85,11 +99,11 @@ namespace WebApi.Controllers
             return await TaskItemService.DeleteTaskItem(id, keepChildren).ConfigureAwait(false);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("options")]
-        public async Task<TaskOptions> GetTaskOptions([FromBody]string currentDate)
+        public async Task<TaskOptions> GetTaskOptions()
         {
-            return await TaskItemService.GetTaskOptions(currentDate).ConfigureAwait(false);
+            return await TaskItemService.GetTaskOptions().ConfigureAwait(false);
         }
     }
 }

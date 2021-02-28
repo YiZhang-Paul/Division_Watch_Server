@@ -10,7 +10,8 @@ namespace Core.Models
         public string CategoryId { get; set; }
         public RankItem Priority { get; set; }
         public int Estimate { get; set; }
-        public string Deadline { get; set; } = string.Empty;
+        public DateTime? Deadline { get; set; }
+        public string DueTime { get; set; }
         public List<bool> Recur { get; set; } = new List<bool>();
         public List<ChecklistItem> Checklist { get; set; } = new List<ChecklistItem>();
         public List<EstimationResult> EstimationResults { get; set; } = new List<EstimationResult>();

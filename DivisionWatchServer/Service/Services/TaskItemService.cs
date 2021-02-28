@@ -11,14 +11,20 @@ namespace Service.Services
 {
     public class TaskItemService
     {
-        private const int SkullDuration = 1500000;
         private CategoryRepository CategoryRepository { get; set; }
         private TaskItemRepository TaskItemRepository { get; set; }
+        private AppSettingsService AppSettingsService { get; set; }
 
-        public TaskItemService(CategoryRepository categoryRepository, TaskItemRepository taskItemRepository)
+        public TaskItemService
+        (
+            CategoryRepository categoryRepository,
+            TaskItemRepository taskItemRepository,
+            AppSettingsService appSettingsService
+        )
         {
             CategoryRepository = categoryRepository;
             TaskItemRepository = taskItemRepository;
+            AppSettingsService = appSettingsService;
         }
 
         public async Task<IEnumerable<TaskItem>> GetIncompleteTaskItems(int limit)
@@ -45,14 +51,16 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskItem> GetEmptyTaskItem()
+        public async Task<TaskItem> GetEmptyTaskItem(bool isInterruption)
         {
-            var categories = await CategoryRepository.Get(1).ConfigureAwait(false);
+            var settings = await AppSettingsService.GetSessionSettings().ConfigureAwait(false);
+            var categories = await CategoryRepository.Get().ConfigureAwait(false);
 
             return new TaskItem
             {
-                CategoryId = categories.FirstOrDefault()?.Id,
-                Estimate = SkullDuration
+                CategoryId = categories.FirstOrDefault(_ => !_.IsEditable && _.Name == "Default")?.Id,
+                Estimate = settings.SessionDuration,
+                IsInterruption = isInterruption
             };
         }
 
@@ -91,10 +99,11 @@ namespace Service.Services
 
             try
             {
+                var settings = await AppSettingsService.GetSessionSettings().ConfigureAwait(false);
                 item.Parent = parent.Id;
-                item.CategoryId ??= parent.CategoryId;
+                item.CategoryId = null;
                 item.Deadline ??= parent.Deadline;
-                item.Estimate = SkullDuration;
+                item.Estimate = settings.SessionDuration;
                 item.Recur = parent.Recur;
 
                 item.Priority ??= new RankItem
@@ -112,6 +121,30 @@ namespace Service.Services
             {
                 return null;
             }
+        }
+
+        public async Task<TaskItem> ConvertChildToParent(TaskItem child)
+        {
+            var parent = await TaskItemRepository.Get(child.Parent).ConfigureAwait(false);
+
+            if (parent == null)
+            {
+                return null;
+            }
+
+            child.Parent = null;
+            child.CategoryId = parent.CategoryId;
+            await TaskItemRepository.Replace(child).ConfigureAwait(false);
+
+            return child;
+        }
+
+        public async Task<TaskItem> ConvertInterruptionToTaskItem(TaskItem interruption)
+        {
+            interruption.IsInterruption = false;
+            await TaskItemRepository.Replace(interruption).ConfigureAwait(false);
+
+            return interruption;
         }
 
         public async Task<UpdateTaskResult> UpdateTaskItem(TaskItem item)
@@ -156,7 +189,7 @@ namespace Service.Services
                 }
                 else if (!current.IsInterruption)
                 {
-                    await ProcessChildTasks(id, keepChildren, result).ConfigureAwait(false);
+                    await ProcessChildTasks(current, keepChildren, result).ConfigureAwait(false);
                 }
 
                 return result;
@@ -167,42 +200,40 @@ namespace Service.Services
             }
         }
 
-        public async Task<TaskOptions> GetTaskOptions(string currentDate)
+        public async Task<TaskOptions> GetTaskOptions()
         {
-            var startDate = DateTime.Parse(currentDate);
-            var deadlines = Enumerable.Range(0, 14).Select(_ => startDate.AddDays(_).ToShortDateString());
-            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / SkullDuration);
-            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => SkullDuration * _);
+            var settings = await AppSettingsService.GetSessionSettings().ConfigureAwait(false);
+            var maxSkulls = Math.Max(1, 1000 * 60 * 60 * 3 / settings.SessionDuration);
+            var estimates = Enumerable.Range(1, maxSkulls).Select(_ => settings.SessionDuration * _);
 
             return new TaskOptions
             {
                 Priorities = ToRankItem(typeof(Priority)).ToList(),
-                Deadlines = new List<string> { string.Empty }.Concat(deadlines).ToList(),
-                Estimates = new List<int> { 600000 }.Concat(estimates).ToList(),
-                SkullDuration = SkullDuration
+                Estimates = new List<int> { 900000 }.Concat(estimates).ToList(),
+                SkullDuration = settings.SessionDuration
             };
         }
 
-        private async Task ProcessChildTasks(string id, bool keepChildren, DeleteTaskResult result)
+        private async Task ProcessChildTasks(TaskItem parent, bool keepChildren, DeleteTaskResult result)
         {
-            var tasks = new List<Task>();
+            var tasks = await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false);
 
-            foreach (var child in await TaskItemRepository.GetChildTaskItems(id).ConfigureAwait(false))
+            if (!keepChildren)
             {
-                if (keepChildren)
-                {
-                    child.Parent = null;
-                    result.UpdatedChildren.Add(child);
-                    tasks.Add(TaskItemRepository.Replace(child));
-                }
-                else
-                {
-                    result.DeletedChildren.Add(child);
-                    tasks.Add(TaskItemRepository.Delete(child.Id));
-                }
+                result.DeletedChildren = tasks.ToList();
+                await TaskItemRepository.DeleteMany(result.DeletedChildren).ConfigureAwait(false);
+
+                return;
             }
 
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            foreach (var task in tasks)
+            {
+                task.Parent = null;
+                task.CategoryId = parent.CategoryId;
+                result.UpdatedChildren.Add(task);
+            }
+
+            await TaskItemRepository.ReplaceMany(result.UpdatedChildren).ConfigureAwait(false);
         }
 
         private IEnumerable<RankItem> ToRankItem(Type type)
@@ -214,11 +245,12 @@ namespace Service.Services
             });
         }
 
-        private async Task UpdateTotalEstimation(TaskItem parent, int minimum = SkullDuration)
+        private async Task UpdateTotalEstimation(TaskItem parent)
         {
+            var settings = await AppSettingsService.GetSessionSettings().ConfigureAwait(false);
             var children = await TaskItemRepository.GetChildTaskItems(parent.Id).ConfigureAwait(false);
             var total = children.Sum(_ => _.Estimate);
-            parent.Estimate = total == 0 ? minimum : total;
+            parent.Estimate = total == 0 ? settings.SessionDuration : total;
             await TaskItemRepository.Replace(parent).ConfigureAwait(false);
         }
     }
