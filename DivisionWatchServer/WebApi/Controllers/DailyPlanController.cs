@@ -2,6 +2,7 @@ using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace WebApi.Controllers
@@ -15,6 +16,13 @@ namespace WebApi.Controllers
         public DailyPlanController(DailyPlanService dailyPlanService)
         {
             DailyPlanService = dailyPlanService;
+        }
+
+        [HttpGet]
+        [Route("goals")]
+        public async Task<IEnumerable<Goal>> GetGoalOptions()
+        {
+            return await DailyPlanService.GetGoalOptions().ConfigureAwait(false);
         }
 
         [HttpGet]
