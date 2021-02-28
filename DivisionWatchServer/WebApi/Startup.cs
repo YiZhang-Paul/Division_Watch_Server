@@ -31,6 +31,7 @@ namespace WebApi
             services.AddSingleton<CategoryService, CategoryService>();
             services.AddSingleton<TaskItemService, TaskItemService>();
             services.AddScoped<AppSettingsRepository, AppSettingsRepository>();
+            services.AddScoped<DailyPlanRepository, DailyPlanRepository>();
             services.AddScoped<CategoryRepository, CategoryRepository>();
             services.AddScoped<TaskItemRepository, TaskItemRepository>();
             services.Configure<DatabaseConfiguration>(Configuration.GetSection(DatabaseConfiguration.Key));
