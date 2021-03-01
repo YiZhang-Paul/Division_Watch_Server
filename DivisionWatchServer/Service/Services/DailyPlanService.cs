@@ -33,7 +33,23 @@ namespace Service.Services
 
         public async Task<DailyPlan> GetDailyPlan(DateTime date)
         {
-            return await DailyPlanRepository.GetByDate(date).ConfigureAwait(false) ?? new DailyPlan(date);
+            var plan = await DailyPlanRepository.GetByDate(date).ConfigureAwait(false);
+
+            if (plan != null)
+            {
+                return plan;
+            }
+
+            var options = await GetGoalOptions().ConfigureAwait(false);
+
+            return new DailyPlan(date)
+            {
+                Goal = new Goal
+                {
+                    Sessions = Math.Min(12, options.Sessions.Max),
+                    SessionDuration = options.SessionDuration
+                }
+            };
         }
 
         public async Task<DailyPlan> UpsertDailyPlan(DailyPlan plan)
