@@ -1,7 +1,7 @@
 using Core.Models;
+using Core.Models.Plans;
 using Service.Repositories;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,13 +18,17 @@ namespace Service.Services
             DailyPlanRepository = dailyPlanRepository;
         }
 
-        public async Task<IEnumerable<Goal>> GetGoalOptions()
+        public async Task<GoalOptions> GetGoalOptions()
         {
             var settings = (await AppSettingsRepository.Get(1).ConfigureAwait(false)).First();
             var duration = settings.SessionSettings.SessionDuration;
-            var sessions = Enumerable.Range(1, 1000 * 60 * 60 * 24 / duration);
+            var sessions = 1000 * 60 * 60 * 24 / duration;
 
-            return sessions.Select(_ => new Goal { Sessions = _, SessionDuration = duration });
+            return new GoalOptions
+            {
+                Sessions = new Range<int> { Min = 1, Max = sessions },
+                SessionDuration = duration
+            };
         }
 
         public async Task<DailyPlan> GetDailyPlan(DateTime date)

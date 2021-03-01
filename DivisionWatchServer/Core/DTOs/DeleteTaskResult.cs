@@ -1,4 +1,4 @@
-using Core.Models;
+using Core.Models.TaskItem;
 using System.Collections.Generic;
 
 namespace Core.DTOs

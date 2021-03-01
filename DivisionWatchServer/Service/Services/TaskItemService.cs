@@ -1,6 +1,6 @@
 using Core.DTOs;
 using Core.Enums;
-using Core.Models;
+using Core.Models.TaskItem;
 using Service.Repositories;
 using System;
 using System.Collections.Generic;
