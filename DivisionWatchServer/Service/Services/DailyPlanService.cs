@@ -29,9 +29,7 @@ namespace Service.Services
 
         public async Task<DailyPlan> GetDailyPlan(DateTime date)
         {
-            var plan = await DailyPlanRepository.GetByDate(date).ConfigureAwait(false);
-
-            return plan == null ? new DailyPlan { Date = date } : plan;
+            return await DailyPlanRepository.GetByDate(date).ConfigureAwait(false) ?? new DailyPlan(date);
         }
 
         public async Task<DailyPlan> UpsertDailyPlan(DailyPlan plan)

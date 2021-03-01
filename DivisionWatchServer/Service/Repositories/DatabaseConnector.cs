@@ -30,7 +30,7 @@ namespace Service.Repositories
             return await Collection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public async Task Add(T document)
+        public async virtual Task Add(T document)
         {
             await Collection.InsertOneAsync(document).ConfigureAwait(false);
         }
