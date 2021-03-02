@@ -21,13 +21,19 @@ namespace Service.Services
         public async Task<GoalOptions> GetGoalOptions()
         {
             var settings = (await AppSettingsRepository.Get(1).ConfigureAwait(false)).First();
-            var duration = settings.SessionSettings.SessionDuration;
-            var sessions = 1000 * 60 * 60 * 24 / duration;
+            var oneDay = 1000 * 60 * 60 * 24;
+            var session = settings.SessionSettings.SessionDuration;
+            var shortBreak = settings.SessionSettings.ShortBreakDuration;
+            var longBreak = settings.SessionSettings.LongBreakDuration;
+            var pairDuration = session + shortBreak;
+            var seriesDuration = pairDuration * 4 + longBreak;
+            var totalSeries = oneDay / seriesDuration;
+            var remainingPairs = (oneDay - totalSeries * seriesDuration) / pairDuration;
 
             return new GoalOptions
             {
-                Sessions = new Range<int> { Min = 1, Max = sessions },
-                SessionDuration = duration
+                Sessions = new Range<int> { Min = 1, Max = totalSeries * 4 + remainingPairs },
+                SessionDuration = session
             };
         }
 
