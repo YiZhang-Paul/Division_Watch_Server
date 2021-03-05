@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Core.Models
+namespace Core.Models.TaskItem
 {
     public class TaskOptions
     {

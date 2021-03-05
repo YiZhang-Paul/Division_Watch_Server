@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Core.Models
+namespace Core.Models.TaskItem
 {
     public class TaskItem : DatabaseRecord
     {

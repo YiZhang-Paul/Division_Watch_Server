@@ -1,6 +1,6 @@
 using System;
 
-namespace Core.Models
+namespace Core.Models.TaskItem
 {
     public class EstimationResult
     {
