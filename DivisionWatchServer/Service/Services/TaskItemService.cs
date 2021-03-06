@@ -168,6 +168,32 @@ namespace Service.Services
             }
         }
 
+        public async Task<UpdateTasksResult> UpdateTaskItems(List<TaskItem> items)
+        {
+            try
+            {
+                var result = new UpdateTasksResult { Targets = items };
+                var parentIds = items.Select(_ => _.Parent).Where(_ => !string.IsNullOrWhiteSpace(_)).Distinct();
+                await TaskItemRepository.ReplaceMany(items).ConfigureAwait(false);
+
+                var tasks = parentIds.Select(async _ =>
+                {
+                    var parent = await TaskItemRepository.Get(_).ConfigureAwait(false);
+                    await UpdateTotalEstimation(parent).ConfigureAwait(false);
+
+                    return parent;
+                });
+
+                result.Parents = (await Task.WhenAll(tasks).ConfigureAwait(false)).ToList();
+
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<DeleteTaskResult> DeleteTaskItem(string id, bool keepChildren)
         {
             try

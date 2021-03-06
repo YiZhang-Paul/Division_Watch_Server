@@ -92,6 +92,13 @@ namespace WebApi.Controllers
             return await TaskItemService.UpdateTaskItem(item).ConfigureAwait(false);
         }
 
+        [HttpPut]
+        [Route("batch")]
+        public async Task<UpdateTasksResult> UpdateTaskItems([FromBody]IEnumerable<TaskItem> items)
+        {
+            return await TaskItemService.UpdateTaskItems(items.ToList()).ConfigureAwait(false);
+        }
+
         [HttpDelete]
         [Route("{id}")]
         public async Task<DeleteTaskResult> DeleteTaskItem([FromQuery]bool keepChildren, string id)
